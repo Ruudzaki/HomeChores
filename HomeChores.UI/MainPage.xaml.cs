@@ -18,6 +18,7 @@ public partial class MainPage : ContentPage
         await _viewModel.LoadChores();
     }
 
+
     private async void AddChore_Clicked(object sender, EventArgs e)
     {
         if (!string.IsNullOrWhiteSpace(ChoreTitleEntry.Text))

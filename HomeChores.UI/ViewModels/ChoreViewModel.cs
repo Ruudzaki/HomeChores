@@ -1,12 +1,13 @@
 ﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using HomeChores.Application.Commands;
 using HomeChores.Domain.Entities;
 using MediatR;
 
 namespace HomeChores.UI.ViewModels;
 
-public class ChoreViewModel : ObservableObject
+public partial class ChoreViewModel : ObservableObject
 {
     private readonly IMediator _mediator;
 
@@ -30,5 +31,12 @@ public class ChoreViewModel : ObservableObject
         var chores = await _mediator.Send(new GetChoresQuery());
         foreach (var chore in chores)
             Chores.Add(chore);
+    }
+
+    [RelayCommand]
+    private async Task ToggleChoreAsync(Chore chore)
+    {
+        await _mediator.Send(new ToggleChoreCommand(chore.Id));
+        await LoadChores();
     }
 }

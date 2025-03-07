@@ -17,4 +17,14 @@ public class Chore
     {
         IsCompleted = true;
     }
+
+    public void MarkIncomplete()
+    {
+        IsCompleted = false;
+    }
+
+    public void ToggleComplete()
+    {
+        IsCompleted = !IsCompleted;
+    }
 }
