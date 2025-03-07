@@ -17,7 +17,7 @@ public class Chore
 
     [Key] public Guid Id { get; private set; }
 
-    public string Title { get; private set; }
+    public string Title { get; private set; } = string.Empty;
     public bool IsCompleted { get; private set; }
 
     public void MarkCompleted()

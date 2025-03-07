@@ -1,8 +1,10 @@
 ﻿<ContentPage
+    x:Class="HomeChores.UI.MainPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:converters="clr-namespace:HomeChores.UI.Converters"
-    x:Class="HomeChores.UI.MainPage">
+    xmlns:vm="clr-namespace:HomeChores.UI.ViewModels"
+    x:DataType="vm:ChoreViewModel"> <!-- The ViewModel for the page -->
 
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -16,11 +18,11 @@
 
         <CollectionView ItemsSource="{Binding Chores}">
             <CollectionView.ItemTemplate>
-                <DataTemplate>
+                <DataTemplate x:DataType="vm:ChoreItemViewModel"> <!-- The item ViewModel type -->
                     <VerticalStackLayout Padding="10">
                         <Label Text="{Binding Title}"
                                TextDecorations="{Binding IsCompleted, 
-                           Converter={StaticResource BoolToTextDecorationsConverter}}" />
+                                   Converter={StaticResource BoolToTextDecorationsConverter}}" />
                         <Button Text="Toggle"
                                 Command="{Binding ToggleCompleteCommand}" />
                     </VerticalStackLayout>

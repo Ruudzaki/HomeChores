@@ -11,8 +11,7 @@ namespace HomeChores.UI.ViewModels;
 public partial class ChoreItemViewModel : ObservableObject
 {
     private readonly IMediator _mediator;
-
-    [ObservableProperty] private bool isCompleted;
+    private bool _isCompleted;
 
     public ChoreItemViewModel(Chore chore, IMediator mediator)
     {
@@ -29,6 +28,12 @@ public partial class ChoreItemViewModel : ObservableObject
 
     public Chore Chore { get; }
     public string Title => Chore.Title;
+
+    public bool IsCompleted
+    {
+        get => _isCompleted;
+        set => SetProperty(ref _isCompleted, value);
+    }
 
     [RelayCommand]
     private async Task ToggleCompleteAsync()
