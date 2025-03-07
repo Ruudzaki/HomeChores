@@ -6,9 +6,7 @@ public class BoolToTextDecorationsConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        if (value is bool and true)
-            return TextDecorations.Strikethrough;
-        return TextDecorations.None;
+        return value is bool and true ? TextDecorations.Strikethrough : TextDecorations.None;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

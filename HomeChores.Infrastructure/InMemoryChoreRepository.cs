@@ -18,7 +18,8 @@ public class InMemoryChoreRepository : IChoreRepository
 
     public Task UpdateAsync(Chore chore)
     {
-        // In-memory, no special update logic. EF Core would do SaveChanges here.
+        var fetchedChore = _chores.Single(x => x.Id == chore.Id);
+        fetchedChore.ToggleComplete();
         return Task.CompletedTask;
     }
 }

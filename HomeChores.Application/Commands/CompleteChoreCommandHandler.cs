@@ -17,6 +17,6 @@ public class CompleteChoreCommandHandler : IRequestHandler<CompleteChoreCommand>
         var chores = await _repository.GetAllAsync();
         var chore = chores.FirstOrDefault(c => c.Id == request.ChoreId);
         chore?.MarkCompleted();
-        await _repository.UpdateAsync(chore);
+        if (chore != null) await _repository.UpdateAsync(chore);
     }
 }
