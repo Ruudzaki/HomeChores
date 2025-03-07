@@ -1,7 +1,13 @@
-﻿namespace HomeChores.Domain.Entities;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace HomeChores.Domain.Entities;
 
 public class Chore
 {
+    private Chore()
+    {
+    }
+
     public Chore(string title)
     {
         Id = Guid.NewGuid();
@@ -9,8 +15,9 @@ public class Chore
         IsCompleted = false;
     }
 
-    public Guid Id { get; }
-    public string Title { get; }
+    [Key] public Guid Id { get; private set; }
+
+    public string Title { get; private set; }
     public bool IsCompleted { get; private set; }
 
     public void MarkCompleted()

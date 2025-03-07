@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using HomeChores.Application.Commands;
+using HomeChores.Application.Notifications;
 using HomeChores.Domain.Entities;
 using MediatR;
 
@@ -16,8 +18,13 @@ public partial class ChoreItemViewModel : ObservableObject
     {
         Chore = chore;
         _mediator = mediator;
-
         IsCompleted = chore.IsCompleted;
+
+        // Register for notifications
+        WeakReferenceMessenger.Default.Register<ChoreToggledMessage>(this, (r, message) =>
+        {
+            if (Chore.Id == message.ChoreId) IsCompleted = message.IsCompleted;
+        });
     }
 
     public Chore Chore { get; }
@@ -26,10 +33,6 @@ public partial class ChoreItemViewModel : ObservableObject
     [RelayCommand]
     private async Task ToggleCompleteAsync()
     {
-        // Toggle locally
-        Chore.ToggleComplete();
-        IsCompleted = Chore.IsCompleted;
-
         // Persist the change
         await _mediator.Send(new ToggleChoreCommand(Chore.Id));
     }

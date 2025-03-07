@@ -1,4 +1,6 @@
-﻿using HomeChores.Infrastructure.Interfaces;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using HomeChores.Application.Notifications;
+using HomeChores.Infrastructure.Interfaces;
 using MediatR;
 
 namespace HomeChores.Application.Commands;
@@ -20,6 +22,9 @@ public class ToggleChoreCommandHandler : IRequestHandler<ToggleChoreCommand>
         {
             chore.ToggleComplete();
             await _repo.UpdateAsync(chore);
+
+            // Publish the notification message
+            WeakReferenceMessenger.Default.Send(new ChoreToggledMessage(chore.Id, chore.IsCompleted));
         }
     }
 }
