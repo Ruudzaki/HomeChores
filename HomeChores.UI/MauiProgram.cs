@@ -1,4 +1,5 @@
-﻿using HomeChores.Application.Commands;
+﻿using CommunityToolkit.Maui;
+using HomeChores.Application.Commands;
 using HomeChores.Infrastructure.Data;
 using HomeChores.Infrastructure.Interfaces;
 using HomeChores.UI;
@@ -22,6 +23,8 @@ public static class MauiProgram
         builder.Services.AddDbContext<ChoreDbContext>(options => { options.UseSqlite($"Data Source={dbPath}"); });
 
         builder.Services.AddScoped<IChoreRepository, EfCoreChoreRepository>();
+
+        builder.UseMauiCommunityToolkit();
 
         // ViewModels
         builder.Services.AddTransient<ChoreViewModel>();
