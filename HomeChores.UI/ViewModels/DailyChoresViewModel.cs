@@ -52,7 +52,7 @@ public partial class DailyChoresViewModel : ObservableObject, IQueryAttributable
         }
     }
 
-    public async void ApplyQueryAttributes(IDictionary<string, object> query)
+    public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
         // If the user came from the calendar, we parse the date from the URI
         if (query.TryGetValue("date", out var dateObj) && dateObj is string dateStr &&

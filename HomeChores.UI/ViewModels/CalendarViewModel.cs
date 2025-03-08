@@ -10,6 +10,9 @@ public partial class CalendarViewModel : ObservableObject
 {
     private readonly IMediator _mediator;
 
+
+    [ObservableProperty] private bool isBusy;
+
     [ObservableProperty] private int selectedMonth;
 
     [ObservableProperty] private int selectedYear;
@@ -26,6 +29,7 @@ public partial class CalendarViewModel : ObservableObject
     public ObservableCollection<CalendarDay> CalendarDays { get; }
 
     public string MonthYearDisplay => new DateTime(SelectedYear, SelectedMonth, 1).ToString("MMMM yyyy");
+
 
     [RelayCommand]
     private async Task PreviousMonthAsync()
@@ -49,65 +53,63 @@ public partial class CalendarViewModel : ObservableObject
 
     public async Task LoadCalendar()
     {
-        // Use SelectedYear/SelectedMonth for current display
-        var firstDayOfMonth = new DateTime(SelectedYear, SelectedMonth, 1);
-        var daysInMonth = DateTime.DaysInMonth(SelectedYear, SelectedMonth);
-
-        // Calculate offset (assuming Sunday = 0)
-        var offset = (int)firstDayOfMonth.DayOfWeek;
-
-        // Fetch dictionary of chores per day from your query:
-        // Key: Date, Value: count
-        var chores = await _mediator.Send(new GetChoresDateCountQuery());
-
-        // Clear existing days
-        CalendarDays.Clear();
-
-        // Preceding days (from previous month)
-        for (var i = 0; i < offset; i++)
+        IsBusy = true;
+        // build your calendar
+        // Step 1: do the heavy lifting in a Task.Run
+        var calendarDaysList = await Task.Run(() =>
         {
-            var date = firstDayOfMonth.AddDays(-offset + i);
-            chores.TryGetValue(date, out var count);
-            CalendarDays.Add(new CalendarDay
-            {
-                Date = date,
-                ChoreCount = count,
-                IsCurrentMonth = false
-            });
-        }
+            var list = new List<CalendarDay>();
 
-        // Days for the current month
-        for (var day = 1; day <= daysInMonth; day++)
-        {
-            var date = new DateTime(SelectedYear, SelectedMonth, day);
-            chores.TryGetValue(date, out var count);
-            CalendarDays.Add(new CalendarDay
-            {
-                Date = date,
-                ChoreCount = count,
-                IsCurrentMonth = true
-            });
-        }
+            // Build your dictionary, offset logic, etc.
+            // (Optionally do the DB fetch here, or store in a local variable)
+            var chores = _mediator.Send(new GetChoresDateCountQuery()).Result;
+            // .Result inside Task.Run is okay, or you can do it asynchronously with .ConfigureAwait(false).
 
-        // Trailing days (next month) to fill grid (if needed)
-        var totalCells = CalendarDays.Count;
-        var remainder = totalCells % 7;
-        if (remainder != 0)
-        {
-            var trailing = 7 - remainder;
-            var lastDate = CalendarDays.Last().Date;
-            for (var i = 1; i <= trailing; i++)
+            var firstDayOfMonth = new DateTime(SelectedYear, SelectedMonth, 1);
+            var daysInMonth = DateTime.DaysInMonth(SelectedYear, SelectedMonth);
+            var offset = (int)firstDayOfMonth.DayOfWeek;
+
+            // preceding days
+            for (var i = 0; i < offset; i++)
             {
-                var date = lastDate.AddDays(i);
+                var date = firstDayOfMonth.AddDays(-offset + i);
                 chores.TryGetValue(date, out var count);
-                CalendarDays.Add(new CalendarDay
-                {
-                    Date = date,
-                    ChoreCount = count,
-                    IsCurrentMonth = false
-                });
+                list.Add(new CalendarDay { Date = date, ChoreCount = count, IsCurrentMonth = false });
             }
-        }
+
+            // current month
+            for (var day = 1; day <= daysInMonth; day++)
+            {
+                var date = new DateTime(SelectedYear, SelectedMonth, day);
+                chores.TryGetValue(date, out var count);
+                list.Add(new CalendarDay { Date = date, ChoreCount = count, IsCurrentMonth = true });
+            }
+
+            // trailing
+            var remainder = list.Count % 7;
+            if (remainder != 0)
+            {
+                var trailing = 7 - remainder;
+                var lastDate = list.Last().Date;
+                for (var i = 1; i <= trailing; i++)
+                {
+                    var date = lastDate.AddDays(i);
+                    chores.TryGetValue(date, out var count);
+                    list.Add(new CalendarDay { Date = date, ChoreCount = count, IsCurrentMonth = false });
+                }
+            }
+
+            IsBusy = false;
+            return list;
+        });
+
+        // Step 2: update the UI-bound collection on the main thread
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            CalendarDays.Clear();
+            foreach (var day in calendarDaysList)
+                CalendarDays.Add(day);
+        });
     }
 
     [RelayCommand]

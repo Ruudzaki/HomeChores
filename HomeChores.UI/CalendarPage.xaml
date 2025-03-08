@@ -31,8 +31,10 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
+
     <!-- Layout: A grid with header (month/year navigation) and the calendar grid -->
     <Grid Padding="20" RowDefinitions="Auto,*">
+        <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
         <!-- Header: Month navigation -->
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
