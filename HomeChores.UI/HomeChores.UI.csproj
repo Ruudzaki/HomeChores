@@ -60,6 +60,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Include="Converters\BoolToFontConverter.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Maui" Version="11.1.0" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.40" />
@@ -70,6 +74,15 @@
 	  <ProjectReference Include="..\HomeChores.Application\HomeChores.Application.csproj" />
 	  <ProjectReference Include="..\HomeChores.Domain\HomeChores.Domain.csproj" />
 	  <ProjectReference Include="..\HomeChores.Infrastructure\HomeChores.Infrastructure.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Update="CalendarPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="DailyChoresPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	</ItemGroup>
 
 </Project>

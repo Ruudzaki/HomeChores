@@ -27,4 +27,9 @@ public class InMemoryChoreRepository : IChoreRepository
     {
         throw new NotImplementedException();
     }
+
+    public Task<Dictionary<DateTime, int>> GetDateCountAsync()
+    {
+        throw new NotImplementedException();
+    }
 }

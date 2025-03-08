@@ -39,4 +39,14 @@ public class EfCoreChoreRepository : IChoreRepository
             await _db.SaveChangesAsync();
         }
     }
+
+    public async Task<Dictionary<DateTime, int>> GetDateCountAsync()
+    {
+        var dailyCounts = await _db.Chores
+            .GroupBy(c => c.PlannedDate.Date)
+            .Select(g => new { Date = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.Date, x => x.Count);
+
+        return dailyCounts;
+    }
 }

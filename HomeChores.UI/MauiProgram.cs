@@ -24,10 +24,13 @@ public static class MauiProgram
 
         builder.Services.AddScoped<IChoreRepository, EfCoreChoreRepository>();
 
+
         builder.UseMauiCommunityToolkit();
 
         // ViewModels
         builder.Services.AddTransient<ChoreViewModel>();
+        builder.Services.AddTransient<CalendarViewModel>();
+        builder.Services.AddTransient<DailyChoresViewModel>();
 
         using (var scope = builder.Services.BuildServiceProvider().CreateScope())
         {

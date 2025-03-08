@@ -1,0 +1,78 @@
+<ContentPage
+    x:Class="HomeChores.UI.CalendarPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:HomeChores.UI.ViewModels"
+    xmlns:converters="clr-namespace:HomeChores.UI.Converters"
+    x:DataType="vm:CalendarViewModel"
+    Title="Calendar"
+    BackgroundColor="{StaticResource AppBackgroundColor}">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:BoolToColorConverter x:Key="BoolToColorConverter" />
+            <converters:BoolToColorConverterForToday x:Key="BoolToColorConverterForToday" />
+            <converters:BoolToFontConverter x:Key="BoolToFontConverter" />
+
+            <Style x:Key="CalendarCellStyle" TargetType="Border">
+                <Setter Property="Padding" Value="5" />
+                <Setter Property="Margin" Value="2" />
+                <Setter Property="StrokeThickness" Value="2" />
+            </Style>
+
+            <Style x:Key="CalendarCellLabelStyle" TargetType="Label">
+                <Setter Property="HorizontalOptions" Value="Center" />
+                <Setter Property="VerticalOptions" Value="Center" />
+                <Setter Property="FontSize" Value="14" />
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <!-- A Grid with 2 rows and 7 columns for perfect alignment -->
+    <Grid Padding="20"
+          RowDefinitions="Auto,*"
+          ColumnDefinitions="*,*,*,*,*,*,*">
+
+        <!-- Weekday headers in row 0 -->
+        <Label Text="Sun" Grid.Row="0" Grid.Column="0" HorizontalOptions="Center" />
+        <Label Text="Mon" Grid.Row="0" Grid.Column="1" HorizontalOptions="Center" />
+        <Label Text="Tue" Grid.Row="0" Grid.Column="2" HorizontalOptions="Center" />
+        <Label Text="Wed" Grid.Row="0" Grid.Column="3" HorizontalOptions="Center" />
+        <Label Text="Thu" Grid.Row="0" Grid.Column="4" HorizontalOptions="Center" />
+        <Label Text="Fri" Grid.Row="0" Grid.Column="5" HorizontalOptions="Center" />
+        <Label Text="Sat" Grid.Row="0" Grid.Column="6" HorizontalOptions="Center" />
+
+        <!-- CollectionView in row 1, spanning all 7 columns -->
+        <CollectionView
+            Grid.Row="1"
+            Grid.ColumnSpan="7"
+            ItemsSource="{Binding CalendarDays}"
+            ItemsLayout="VerticalGrid, 7"
+            SelectionMode="Single"
+            SelectionChangedCommand="{Binding DaySelectedCommand}">
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:CalendarDay">
+                    <Border Style="{StaticResource CalendarCellStyle}"
+                            Stroke="{Binding IsToday, Converter={StaticResource BoolToColorConverterForToday}}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer 
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CalendarViewModel}}, Path=DaySelectedCommand}" 
+                                CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                        <VerticalStackLayout>
+                            <Label Text="{Binding Date.Day}"
+                                   Style="{StaticResource CalendarCellLabelStyle}"
+                                   TextColor="{Binding IsCurrentMonth, Converter={StaticResource BoolToColorConverter}}" />
+                            <Label Text="{Binding ChoreCount}"
+                                   Style="{StaticResource CalendarCellLabelStyle}"
+                                   FontSize="10"
+                                   FontAttributes="{Binding ChoreCount, Converter={StaticResource BoolToFontConverter}}"
+                                   TextColor="Gray" />
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

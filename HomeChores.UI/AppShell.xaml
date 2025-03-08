@@ -12,4 +12,15 @@
         ContentTemplate="{DataTemplate local:MainPage}"
         Route="MainPage" />
 
+    <ShellContent
+        Title="Calendar"
+        ContentTemplate="{DataTemplate local:CalendarPage}"
+        Route="CalendarPage" />
+
+    <!-- The page we navigate to, not necessarily shown in the menu -->
+    <ShellContent
+        Title="Daily Chores"
+        ContentTemplate="{DataTemplate local:DailyChoresPage}"
+        Route="DailyChoresPage" />
 </Shell>
+
