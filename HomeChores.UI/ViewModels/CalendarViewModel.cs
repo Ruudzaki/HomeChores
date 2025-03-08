@@ -10,33 +10,60 @@ public partial class CalendarViewModel : ObservableObject
 {
     private readonly IMediator _mediator;
 
+    [ObservableProperty] private int selectedMonth;
+
+    [ObservableProperty] private int selectedYear;
+
     public CalendarViewModel(IMediator mediator)
     {
         _mediator = mediator;
         CalendarDays = new ObservableCollection<CalendarDay>();
+        // Initialize to current month
+        SelectedYear = DateTime.Now.Year;
+        SelectedMonth = DateTime.Now.Month;
     }
 
     public ObservableCollection<CalendarDay> CalendarDays { get; }
 
+    public string MonthYearDisplay => new DateTime(SelectedYear, SelectedMonth, 1).ToString("MMMM yyyy");
+
+    [RelayCommand]
+    private async Task PreviousMonthAsync()
+    {
+        var date = new DateTime(SelectedYear, SelectedMonth, 1).AddMonths(-1);
+        SelectedYear = date.Year;
+        SelectedMonth = date.Month;
+        OnPropertyChanged(nameof(MonthYearDisplay));
+        await LoadCalendar();
+    }
+
+    [RelayCommand]
+    private async Task NextMonthAsync()
+    {
+        var date = new DateTime(SelectedYear, SelectedMonth, 1).AddMonths(1);
+        SelectedYear = date.Year;
+        SelectedMonth = date.Month;
+        OnPropertyChanged(nameof(MonthYearDisplay));
+        await LoadCalendar();
+    }
+
     public async Task LoadCalendar()
     {
-        // Show current month (could be parameterized)
-        var now = DateTime.Now;
-        var year = now.Year;
-        var month = now.Month;
-        var firstDayOfMonth = new DateTime(year, month, 1);
-        var daysInMonth = DateTime.DaysInMonth(year, month);
+        // Use SelectedYear/SelectedMonth for current display
+        var firstDayOfMonth = new DateTime(SelectedYear, SelectedMonth, 1);
+        var daysInMonth = DateTime.DaysInMonth(SelectedYear, SelectedMonth);
 
-        // Determine offset based on day of week (assuming Sunday = 0)
+        // Calculate offset (assuming Sunday = 0)
         var offset = (int)firstDayOfMonth.DayOfWeek;
 
-        // Fetch chores from the repository via MediatR
+        // Fetch dictionary of chores per day from your query:
+        // Key: Date, Value: count
         var chores = await _mediator.Send(new GetChoresDateCountQuery());
 
-        // Clear existing calendar days
+        // Clear existing days
         CalendarDays.Clear();
 
-        // Optionally, fill preceding days from previous month
+        // Preceding days (from previous month)
         for (var i = 0; i < offset; i++)
         {
             var date = firstDayOfMonth.AddDays(-offset + i);
@@ -49,10 +76,10 @@ public partial class CalendarViewModel : ObservableObject
             });
         }
 
-        // Fill days for the current month
+        // Days for the current month
         for (var day = 1; day <= daysInMonth; day++)
         {
-            var date = new DateTime(year, month, day);
+            var date = new DateTime(SelectedYear, SelectedMonth, day);
             chores.TryGetValue(date, out var count);
             CalendarDays.Add(new CalendarDay
             {
@@ -62,7 +89,7 @@ public partial class CalendarViewModel : ObservableObject
             });
         }
 
-        // Fill trailing days from next month to complete the grid (if needed)
+        // Trailing days (next month) to fill grid (if needed)
         var totalCells = CalendarDays.Count;
         var remainder = totalCells % 7;
         if (remainder != 0)
@@ -87,6 +114,7 @@ public partial class CalendarViewModel : ObservableObject
     private async Task DaySelectedAsync(CalendarDay day)
     {
         if (day == null) return;
+        // Navigate to the daily chores page
         await Shell.Current.GoToAsync($"///DailyChoresPage?date={day.Date:yyyy-MM-dd}");
     }
 }

@@ -16,6 +16,11 @@ public class InMemoryChoreRepository : IChoreRepository
         return Task.FromResult(_chores.AsEnumerable());
     }
 
+    public Task<IEnumerable<Chore>> GetDailyChoresAsync(DateTime date)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task UpdateAsync(Chore chore)
     {
         var fetchedChore = _chores.Single(x => x.Id == chore.Id);

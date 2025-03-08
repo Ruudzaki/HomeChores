@@ -24,6 +24,12 @@ public class EfCoreChoreRepository : IChoreRepository
         return await _db.Chores.ToListAsync();
     }
 
+    public async Task<IEnumerable<Chore>> GetDailyChoresAsync(DateTime date)
+    {
+        return await _db.Chores.Where(c => c.PlannedDate.Date == date)
+            .ToListAsync();
+    }
+
     public async Task UpdateAsync(Chore chore)
     {
         _db.Chores.Update(chore);

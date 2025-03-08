@@ -1,23 +1,56 @@
-<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage
     x:Class="HomeChores.UI.DailyChoresPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:vm="clr-namespace:HomeChores.UI.ViewModels"
-    xmlns:entities="clr-namespace:HomeChores.Domain.Entities;assembly=HomeChores.Domain"
-    Title="Daily Chores">
+    xmlns:converters="clr-namespace:HomeChores.UI.Converters"
+    x:DataType="vm:DailyChoresViewModel"
+    Title="{Binding Title}"
+    BackgroundColor="{StaticResource AppBackgroundColor}">
 
-    <VerticalStackLayout Padding="20">
-        <Label Text="{Binding Title}" FontSize="24" />
-        <CollectionView ItemsSource="{Binding Chores}">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!-- Converter to produce a strikethrough color, etc. -->
+            <converters:BoolToTextDecorationsConverter x:Key="BoolToTextDecorationsConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <VerticalStackLayout Padding="20" Spacing="20">
+        <!-- Progress Section -->
+        <Label Text="{Binding Title}" FontSize="24" HorizontalOptions="Center" />
+        <ProgressBar Progress="{Binding ProgressPercentage}" HeightRequest="20" />
+        <Label Text="{Binding ProgressPercentage, StringFormat='{0:P0} completed'}" HorizontalOptions="Center" />
+
+        <!-- List of daily chores -->
+        <CollectionView ItemsSource="{Binding Chores}" SelectionMode="None">
             <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="entities:Chore">
-                    <VerticalStackLayout Padding="10">
-                        <Label Text="{Binding Title}" FontSize="16" />
-                        <Label Text="{Binding PlannedDate}" FontSize="12" />
-                    </VerticalStackLayout>
+                <DataTemplate x:DataType="vm:ChoreItemViewModel">
+                    <SwipeView>
+                        <SwipeView.RightItems>
+                            <SwipeItems Mode="Reveal">
+                                <SwipeItem Text="Delete"
+                                           BackgroundColor="Red"
+                                           Command="{Binding DeleteChoreCommand}" />
+                            </SwipeItems>
+                        </SwipeView.RightItems>
+                        <Grid Padding="10">
+                            <CheckBox IsChecked="{Binding IsCompleted}" >
+                                <CheckBox.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ToggleCompleteCommand}" />
+                                </CheckBox.GestureRecognizers>
+                            </CheckBox>
+
+                            <Label Text="{Binding Title}" 
+                                   VerticalOptions="Center"
+                                   TextDecorations="{Binding IsCompleted, Converter={StaticResource BoolToTextDecorationsConverter}}"
+                                   Margin="10,0,0,0" />
+                        </Grid>
+                    </SwipeView>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
+
+        <!-- Go Back Button -->
+        <Button Text="Back to Calendar" Command="{Binding GoBackCommand}" />
     </VerticalStackLayout>
 </ContentPage>

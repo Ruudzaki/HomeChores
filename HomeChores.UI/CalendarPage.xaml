@@ -10,16 +10,19 @@
 
     <ContentPage.Resources>
         <ResourceDictionary>
+            <!-- Converter to color non-current month days -->
             <converters:BoolToColorConverter x:Key="BoolToColorConverter" />
+            <!-- Converter to highlight today's border -->
             <converters:BoolToColorConverterForToday x:Key="BoolToColorConverterForToday" />
+            <!-- Converter for font attributes if needed -->
             <converters:BoolToFontConverter x:Key="BoolToFontConverter" />
 
             <Style x:Key="CalendarCellStyle" TargetType="Border">
                 <Setter Property="Padding" Value="5" />
                 <Setter Property="Margin" Value="2" />
+                <Setter Property="BackgroundColor" Value="White" />
                 <Setter Property="StrokeThickness" Value="2" />
             </Style>
-
             <Style x:Key="CalendarCellLabelStyle" TargetType="Label">
                 <Setter Property="HorizontalOptions" Value="Center" />
                 <Setter Property="VerticalOptions" Value="Center" />
@@ -28,37 +31,35 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <!-- A Grid with 2 rows and 7 columns for perfect alignment -->
-    <Grid Padding="20"
-          RowDefinitions="Auto,*"
-          ColumnDefinitions="*,*,*,*,*,*,*">
+    <!-- Layout: A grid with header (month/year navigation) and the calendar grid -->
+    <Grid Padding="20" RowDefinitions="Auto,*">
+        <!-- Header: Month navigation -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Button Text="&lt;" Command="{Binding PreviousMonthCommand}" Grid.Column="0" />
+            <Label Text="{Binding MonthYearDisplay}" Grid.Column="1" 
+                   HorizontalOptions="Center" VerticalOptions="Center" FontSize="20" />
+            <Button Text="&gt;" Command="{Binding NextMonthCommand}" Grid.Column="2" />
+        </Grid>
 
-        <!-- Weekday headers in row 0 -->
-        <Label Text="Sun" Grid.Row="0" Grid.Column="0" HorizontalOptions="Center" />
-        <Label Text="Mon" Grid.Row="0" Grid.Column="1" HorizontalOptions="Center" />
-        <Label Text="Tue" Grid.Row="0" Grid.Column="2" HorizontalOptions="Center" />
-        <Label Text="Wed" Grid.Row="0" Grid.Column="3" HorizontalOptions="Center" />
-        <Label Text="Thu" Grid.Row="0" Grid.Column="4" HorizontalOptions="Center" />
-        <Label Text="Fri" Grid.Row="0" Grid.Column="5" HorizontalOptions="Center" />
-        <Label Text="Sat" Grid.Row="0" Grid.Column="6" HorizontalOptions="Center" />
-
-        <!-- CollectionView in row 1, spanning all 7 columns -->
-        <CollectionView
-            Grid.Row="1"
-            Grid.ColumnSpan="7"
-            ItemsSource="{Binding CalendarDays}"
-            ItemsLayout="VerticalGrid, 7"
-            SelectionMode="Single"
-            SelectionChangedCommand="{Binding DaySelectedCommand}">
-
+        <!-- Calendar grid: CollectionView with 7 columns -->
+        <CollectionView Grid.Row="1"
+                        ItemsSource="{Binding CalendarDays}"
+                        ItemsLayout="VerticalGrid, 7"
+                        SelectionMode="Single"
+                        SelectionChangedCommand="{Binding DaySelectedCommand}">
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="vm:CalendarDay">
                     <Border Style="{StaticResource CalendarCellStyle}"
                             Stroke="{Binding IsToday, Converter={StaticResource BoolToColorConverterForToday}}">
                         <Border.GestureRecognizers>
-                            <TapGestureRecognizer 
-                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CalendarViewModel}}, Path=DaySelectedCommand}" 
-                                CommandParameter="{Binding .}" />
+                            <!-- Optionally, handle tap gesture to select day -->
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CalendarViewModel}}, Path=DaySelectedCommand}"
+                                                  CommandParameter="{Binding .}" />
                         </Border.GestureRecognizers>
                         <VerticalStackLayout>
                             <Label Text="{Binding Date.Day}"
