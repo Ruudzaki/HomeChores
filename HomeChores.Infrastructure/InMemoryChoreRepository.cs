@@ -22,4 +22,9 @@ public class InMemoryChoreRepository : IChoreRepository
         fetchedChore.ToggleComplete();
         return Task.CompletedTask;
     }
+
+    public Task DeleteAsync(Guid choreId)
+    {
+        throw new NotImplementedException();
+    }
 }

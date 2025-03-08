@@ -1,6 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
 using HomeChores.Application.Commands;
+using HomeChores.Application.Notifications;
 using MediatR;
 
 namespace HomeChores.UI.ViewModels;
@@ -12,6 +14,27 @@ public class ChoreViewModel : ObservableObject
     public ChoreViewModel(IMediator mediator)
     {
         _mediator = mediator;
+
+        WeakReferenceMessenger.Default.Register<ChoreDeletedMessage>(this, (r, msg) =>
+        {
+            // Find the group containing the chore
+            var group = GroupedChores.FirstOrDefault(g =>
+                g.Any(itemVM => itemVM.Chore.Id == msg.ChoreId));
+
+            if (group != null)
+            {
+                // Remove that chore from the group
+                var choreItem = group.FirstOrDefault(i => i.Chore.Id == msg.ChoreId);
+                if (choreItem != null)
+                {
+                    group.Remove(choreItem);
+
+                    // If the group is now empty, remove the group
+                    if (group.Count == 0)
+                        GroupedChores.Remove(group);
+                }
+            }
+        });
     }
 
     // Instead of a flat list, create a grouped collection:
@@ -19,7 +42,6 @@ public class ChoreViewModel : ObservableObject
 
     public async Task LoadChores()
     {
-        GroupedChores.Clear();
         var chores = await _mediator.Send(new GetChoresQuery());
 
         // Create ChoreItemViewModels (pass mediator along)
@@ -30,6 +52,7 @@ public class ChoreViewModel : ObservableObject
             .OrderBy(g => g.Key)
             .Select(g => new ChoreGroup(g.Key, g));
 
+        GroupedChores.Clear();
         foreach (var group in groups) GroupedChores.Add(group);
     }
 

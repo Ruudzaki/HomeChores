@@ -56,18 +56,30 @@
             </CollectionView.GroupHeaderTemplate>
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="vm:ChoreItemViewModel">
-                    <VerticalStackLayout Padding="10">
-                        <HorizontalStackLayout Spacing="10" VerticalOptions="Center">
-                            <CheckBox IsChecked="{Binding IsCompleted}">
-                                <CheckBox.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding ToggleCompleteCommand}" />
-                                </CheckBox.GestureRecognizers>
-                            </CheckBox>
-                            <Label Text="{Binding Title}"
-                                   VerticalOptions="Center"
-                                   TextDecorations="{Binding IsCompleted, Converter={StaticResource BoolToTextDecorationsConverter}}" />
-                        </HorizontalStackLayout>
-                    </VerticalStackLayout>
+                    <SwipeView>
+                        <!-- Right swipe items -->
+                        <SwipeView.RightItems>
+                            <SwipeItems Mode="Reveal">
+                                <SwipeItem Text="Delete"
+                                           BackgroundColor="Red"
+                                           Command="{Binding DeleteChoreCommand}" />
+                            </SwipeItems>
+                        </SwipeView.RightItems>
+
+                        <!-- Main chore layout -->
+                        <VerticalStackLayout Padding="10">
+                            <HorizontalStackLayout Spacing="10" VerticalOptions="Center">
+                                <CheckBox IsChecked="{Binding IsCompleted}">
+                                    <CheckBox.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding ToggleCompleteCommand}" />
+                                    </CheckBox.GestureRecognizers>
+                                </CheckBox>
+                                <Label Text="{Binding Title}"
+                                       VerticalOptions="Center"
+                                       TextDecorations="{Binding IsCompleted, Converter={StaticResource BoolToTextDecorationsConverter}}" />
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                    </SwipeView>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>

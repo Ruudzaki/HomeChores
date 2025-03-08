@@ -29,4 +29,14 @@ public class EfCoreChoreRepository : IChoreRepository
         _db.Chores.Update(chore);
         await _db.SaveChangesAsync();
     }
+
+    public async Task DeleteAsync(Guid choreId)
+    {
+        var chore = await _db.Chores.FindAsync(choreId);
+        if (chore != null)
+        {
+            _db.Chores.Remove(chore);
+            await _db.SaveChangesAsync();
+        }
+    }
 }

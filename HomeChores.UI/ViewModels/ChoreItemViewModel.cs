@@ -41,4 +41,22 @@ public partial class ChoreItemViewModel : ObservableObject
         // Persist the change
         await _mediator.Send(new ToggleChoreCommand(Chore.Id));
     }
+
+    [RelayCommand]
+    private async Task DeleteChoreAsync()
+    {
+        var confirm = await Shell.Current.DisplayAlert(
+            "Confirm",
+            $"Delete chore '{Title}'?",
+            "Yes",
+            "No"
+        );
+        if (!confirm) return;
+
+        await _mediator.Send(new DeleteChoreCommand(Chore.Id));
+
+        // Option 1: Refresh the entire list in the parent VM
+        // or
+        // Option 2: Fire a message or callback so the parent removes this item from its collection
+    }
 }
