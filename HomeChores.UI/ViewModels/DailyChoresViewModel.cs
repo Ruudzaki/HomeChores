@@ -12,6 +12,9 @@ public partial class DailyChoresViewModel : ObservableObject, IQueryAttributable
 {
     private readonly IMediator _mediator;
 
+    // Backing field for SelectedDate
+    private DateTime _selectedDate = DateTime.Today;
+
     [ObservableProperty] private string title = string.Empty;
 
     public DailyChoresViewModel(IMediator mediator)
@@ -22,12 +25,23 @@ public partial class DailyChoresViewModel : ObservableObject, IQueryAttributable
 
     public ObservableCollection<ChoreItemViewModel> Chores { get; }
 
-    // The query parameter coming from the URI, e.g. date=2025-03-14
     public string DateParam { get; set; }
 
-    public DateTime SelectedDate { get; set; }
+    // Let the user pick the date. Whenever it changes, reload chores.
+    public DateTime SelectedDate
+    {
+        get => _selectedDate;
+        set
+        {
+            if (SetProperty(ref _selectedDate, value))
+            {
+                Title = $"Chores for {value:MMM dd}";
+                // Reload chores automatically whenever the user picks a new date
+                _ = LoadDailyChores();
+            }
+        }
+    }
 
-    // Returns a value between 0.0 and 1.0 based on completed tasks.
     public double ProgressPercentage
     {
         get
@@ -40,13 +54,10 @@ public partial class DailyChoresViewModel : ObservableObject, IQueryAttributable
 
     public async void ApplyQueryAttributes(IDictionary<string, object> query)
     {
+        // If the user came from the calendar, we parse the date from the URI
         if (query.TryGetValue("date", out var dateObj) && dateObj is string dateStr &&
             DateTime.TryParse(dateStr, out var date))
-        {
-            SelectedDate = date;
-            Title = $"Chores for {SelectedDate:MMM dd}";
-            await LoadDailyChores();
-        }
+            SelectedDate = date; // triggers property setter, which calls LoadDailyChores
     }
 
     public async Task LoadDailyChores()
@@ -60,20 +71,20 @@ public partial class DailyChoresViewModel : ObservableObject, IQueryAttributable
             Chores.Add(vm);
         }
 
+        // Recalculate progress after reloading
         OnPropertyChanged(nameof(ProgressPercentage));
-    }
-
-    [RelayCommand]
-    private async Task GoBackAsync()
-    {
-        // Navigate back to the Calendar page.
-        await Shell.Current.GoToAsync("///CalendarPage");
     }
 
     private void OnChoreItemPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(ChoreItemViewModel.IsCompleted))
-            // A chore’s IsCompleted changed. Recalculate progress.
             OnPropertyChanged(nameof(ProgressPercentage));
+    }
+
+    [RelayCommand]
+    private async Task GoBackAsync()
+    {
+        // Navigate back to Calendar
+        await Shell.Current.GoToAsync("///CalendarPage");
     }
 }

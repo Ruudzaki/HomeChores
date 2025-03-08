@@ -10,16 +10,18 @@
 
     <ContentPage.Resources>
         <ResourceDictionary>
-            <!-- Converter to produce a strikethrough color, etc. -->
             <converters:BoolToTextDecorationsConverter x:Key="BoolToTextDecorationsConverter" />
         </ResourceDictionary>
     </ContentPage.Resources>
 
     <VerticalStackLayout Padding="20" Spacing="20">
-        <!-- Progress Section -->
-        <Label Text="{Binding Title}" FontSize="24" HorizontalOptions="Center" />
+        <!-- Instead of a label for the date, use a DatePicker bound to SelectedDate -->
+        <DatePicker Date="{Binding SelectedDate, Mode=TwoWay}"
+                    HorizontalOptions="Center" />
+
         <ProgressBar Progress="{Binding ProgressPercentage}" HeightRequest="20" />
-        <Label Text="{Binding ProgressPercentage, StringFormat='{0:P0} completed'}" HorizontalOptions="Center" />
+        <Label Text="{Binding ProgressPercentage, StringFormat='{0:P0} completed'}"
+               HorizontalOptions="Center" />
 
         <!-- List of daily chores -->
         <CollectionView ItemsSource="{Binding Chores}" SelectionMode="None">
@@ -34,13 +36,13 @@
                             </SwipeItems>
                         </SwipeView.RightItems>
                         <Grid Padding="10">
-                            <CheckBox IsChecked="{Binding IsCompleted}" >
+                            <CheckBox IsChecked="{Binding IsCompleted}">
                                 <CheckBox.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding ToggleCompleteCommand}" />
                                 </CheckBox.GestureRecognizers>
                             </CheckBox>
 
-                            <Label Text="{Binding Title}" 
+                            <Label Text="{Binding Title}"
                                    VerticalOptions="Center"
                                    TextDecorations="{Binding IsCompleted, Converter={StaticResource BoolToTextDecorationsConverter}}"
                                    Margin="10,0,0,0" />
@@ -50,7 +52,6 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <!-- Go Back Button -->
         <Button Text="Back to Calendar" Command="{Binding GoBackCommand}" />
     </VerticalStackLayout>
 </ContentPage>
