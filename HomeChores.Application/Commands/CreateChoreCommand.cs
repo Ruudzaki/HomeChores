@@ -2,4 +2,4 @@
 
 namespace HomeChores.Application.Commands;
 
-public record CreateChoreCommand(string Title) : IRequest<Guid>;
+public record CreateChoreCommand(string Title, DateTime PlannedDate) : IRequest<Guid>;

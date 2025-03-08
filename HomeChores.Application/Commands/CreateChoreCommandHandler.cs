@@ -15,7 +15,7 @@ public class CreateChoreCommandHandler : IRequestHandler<CreateChoreCommand, Gui
 
     public async Task<Guid> Handle(CreateChoreCommand request, CancellationToken cancellationToken)
     {
-        var chore = new Chore(request.Title);
+        var chore = new Chore(request.Title, request.PlannedDate);
         await _repository.AddAsync(chore);
         return chore.Id;
     }

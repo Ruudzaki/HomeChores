@@ -2,30 +2,86 @@
     x:Class="HomeChores.UI.MainPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:converters="clr-namespace:HomeChores.UI.Converters"
     xmlns:vm="clr-namespace:HomeChores.UI.ViewModels"
-    x:DataType="vm:ChoreViewModel"> <!-- The ViewModel for the page -->
+    xmlns:converters="clr-namespace:HomeChores.UI.Converters"
+    x:DataType="vm:ChoreViewModel">
 
     <ContentPage.Resources>
         <ResourceDictionary>
+            <!-- Converter for strikethrough -->
             <converters:BoolToTextDecorationsConverter x:Key="BoolToTextDecorationsConverter" />
+
+            <!-- Colors (pick any you like) -->
+            <Color x:Key="PrimaryColor">#6200EE</Color>
+            <Color x:Key="AccentColor">#03DAC6</Color>
+            <Color x:Key="CardBackgroundColor">#EFEFEF</Color>
+
+            <!-- Styles for controls -->
+            <Style TargetType="Entry">
+                <Setter Property="Margin" Value="0,5,0,5" />
+                <Setter Property="BackgroundColor" Value="White" />
+                <Setter Property="TextColor" Value="Black" />
+            </Style>
+
+            <Style TargetType="DatePicker">
+                <Setter Property="Margin" Value="0,5,0,5" />
+                <Setter Property="BackgroundColor" Value="White" />
+                <Setter Property="TextColor" Value="Black" />
+            </Style>
+
+            <Style TargetType="Button">
+                <Setter Property="Margin" Value="0,5,0,5" />
+                <Setter Property="BackgroundColor" Value="{StaticResource PrimaryColor}" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="CornerRadius" Value="6" />
+            </Style>
+
+            <!-- Group header label style -->
+            <Style x:Key="GroupHeaderLabelStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="18" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="{StaticResource PrimaryColor}" />
+                <Setter Property="Margin" Value="0,15,0,5" />
+            </Style>
+
+            <!-- Chore item frame style -->
+            <Style x:Key="ChoreCardStyle" TargetType="Frame">
+                <Setter Property="Margin" Value="10,0,10,10" />
+                <Setter Property="Padding" Value="10" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="BackgroundColor" Value="{StaticResource CardBackgroundColor}" />
+                <Setter Property="HasShadow" Value="True" />
+            </Style>
         </ResourceDictionary>
     </ContentPage.Resources>
 
     <StackLayout Padding="20">
         <Entry x:Name="ChoreTitleEntry" Placeholder="Enter chore title..." />
+        <DatePicker x:Name="PlannedDatePicker" />
         <Button Text="Add Chore" Clicked="AddChore_Clicked" />
 
-        <CollectionView ItemsSource="{Binding Chores}">
+        <!-- Grouped CollectionView -->
+        <CollectionView ItemsSource="{Binding GroupedChores}" IsGrouped="True">
+            <CollectionView.GroupHeaderTemplate>
+                <DataTemplate x:DataType="vm:ChoreGroup">
+                    <!-- Use a styled Label for the group header (the planned date) -->
+                    <Label Text="{Binding PlannedDate, StringFormat='{0:MMMM dd, yyyy}'}"
+                           Style="{StaticResource GroupHeaderLabelStyle}" />
+                </DataTemplate>
+            </CollectionView.GroupHeaderTemplate>
+
             <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="vm:ChoreItemViewModel"> <!-- The item ViewModel type -->
-                    <VerticalStackLayout Padding="10">
-                        <Label Text="{Binding Title}"
-                               TextDecorations="{Binding IsCompleted, 
-                                   Converter={StaticResource BoolToTextDecorationsConverter}}" />
-                        <Button Text="Toggle"
-                                Command="{Binding ToggleCompleteCommand}" />
-                    </VerticalStackLayout>
+                <DataTemplate x:DataType="vm:ChoreItemViewModel">
+                    <!-- Each chore displayed in a "card" Frame -->
+                    <Frame Style="{StaticResource ChoreCardStyle}">
+                        <VerticalStackLayout>
+                            <Label Text="{Binding Title}"
+                                   FontSize="16"
+                                   TextDecorations="{Binding IsCompleted, Converter={StaticResource BoolToTextDecorationsConverter}}" />
+                            <Button Text="Toggle"
+                                    Command="{Binding ToggleCompleteCommand}" />
+                        </VerticalStackLayout>
+                    </Frame>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>

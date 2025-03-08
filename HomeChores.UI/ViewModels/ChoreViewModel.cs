@@ -14,23 +14,28 @@ public class ChoreViewModel : ObservableObject
         _mediator = mediator;
     }
 
-    public ObservableCollection<ChoreItemViewModel> Chores { get; } = new();
+    // Instead of a flat list, create a grouped collection:
+    public ObservableCollection<ChoreGroup> GroupedChores { get; } = new();
 
     public async Task LoadChores()
     {
-        Chores.Clear();
+        GroupedChores.Clear();
         var chores = await _mediator.Send(new GetChoresQuery());
-        foreach (var chore in chores)
-        {
-            // Pass the mediator in
-            var itemVM = new ChoreItemViewModel(chore, _mediator);
-            Chores.Add(itemVM);
-        }
+
+        // Create ChoreItemViewModels (pass mediator along)
+        var items = chores.Select(chore => new ChoreItemViewModel(chore, _mediator));
+
+        // Group by the date (using the Date part only)
+        var groups = items.GroupBy(item => item.Chore.PlannedDate.Date)
+            .OrderBy(g => g.Key)
+            .Select(g => new ChoreGroup(g.Key, g));
+
+        foreach (var group in groups) GroupedChores.Add(group);
     }
 
-    public async Task AddChore(string title)
+    public async Task AddChore(string title, DateTime plannedDate)
     {
-        await _mediator.Send(new CreateChoreCommand(title));
+        await _mediator.Send(new CreateChoreCommand(title, plannedDate));
         await LoadChores();
     }
 }

@@ -13,7 +13,7 @@ public class CreateChoreCommandHandlerTests
         var repositoryMock = new Mock<IChoreRepository>();
         var handler = new CreateChoreCommandHandler(repositoryMock.Object);
 
-        var command = new CreateChoreCommand("Clean Kitchen");
+        var command = new CreateChoreCommand("Clean Kitchen", new DateTime(2025, 01, 01));
         var result = await handler.Handle(command, CancellationToken.None);
 
         repositoryMock.Verify(r => r.AddAsync(It.IsAny<Chore>()), Times.Once);

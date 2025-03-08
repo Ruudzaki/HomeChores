@@ -23,9 +23,10 @@ public partial class MainPage : ContentPage
     {
         if (!string.IsNullOrWhiteSpace(ChoreTitleEntry.Text))
         {
-            await _viewModel.AddChore(ChoreTitleEntry.Text);
+            // Use the DatePicker's date as the planned date
+            var plannedDate = PlannedDatePicker.Date;
+            await _viewModel.AddChore(ChoreTitleEntry.Text, plannedDate);
             ChoreTitleEntry.Text = string.Empty;
-            await _viewModel.LoadChores(); // If you add a method to refresh
         }
     }
 }

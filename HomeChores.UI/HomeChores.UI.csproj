@@ -71,4 +71,8 @@
 	  <ProjectReference Include="..\HomeChores.Infrastructure\HomeChores.Infrastructure.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Models\" />
+	</ItemGroup>
+
 </Project>

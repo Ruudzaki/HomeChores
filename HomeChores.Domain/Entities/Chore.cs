@@ -15,20 +15,18 @@ public class Chore
         IsCompleted = false;
     }
 
-    [Key] public Guid Id { get; private set; }
+    public Chore(string title, DateTime plannedDate)
+    {
+        Id = Guid.NewGuid();
+        Title = title;
+        IsCompleted = false;
+        PlannedDate = plannedDate;
+    }
 
+    [Key] public Guid Id { get; private set; }
     public string Title { get; private set; } = string.Empty;
     public bool IsCompleted { get; private set; }
-
-    public void MarkCompleted()
-    {
-        IsCompleted = true;
-    }
-
-    public void MarkIncomplete()
-    {
-        IsCompleted = false;
-    }
+    public DateTime PlannedDate { get; private set; }
 
     public void ToggleComplete()
     {
